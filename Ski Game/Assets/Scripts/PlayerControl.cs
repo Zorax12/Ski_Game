@@ -8,6 +8,10 @@ public class PlayerControl : MonoBehaviour
     private Rigidbody rb;
     [SerializeField] private bool grounded = true;
     [SerializeField] private LayerMask groundMask;
+    [SerializeField] private Vector3 pushbackForce;
+    [SerializeField] private bool disabledControl = false;
+    [SerializeField] private float disableTime = 1;
+    private float lastColTime;
 
     void Awake()
     {
@@ -15,18 +19,29 @@ public class PlayerControl : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        
+        Obstacle.OnPlayerHit += TakeDamage;
+    }
+
+    void TakeDamage()
+    {
+        rb.AddForce(pushbackForce);
+        disabledControl = true;
+        lastColTime = Time.timeSinceLevelLoad;
+        Debug.Log("got hurt");
     }
 
     void FixedUpdate()
     {
+        if(Time.timeSinceLevelLoad > lastColTime + disableTime)
+            disabledControl = false;
+        
        grounded = Physics.Linecast(transform.position, transform.position + Vector3.down, groundMask);
        Color LineCol = grounded ? Color.green : Color.red;
        Debug.DrawLine(transform.position, transform.position + Vector3.down, LineCol);
        
-        if (grounded)
+        if (grounded && !disabledControl)
         {              
             Vector2 moveInput = move.ReadValue<Vector2>();
           

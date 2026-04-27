@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Obstacle : MonoBehaviour
 {
+    public delegate void PlayerHitAction();
+    public static event PlayerHitAction OnPlayerHit;
     private void OnCollisionEnter(Collision collision)
     {
         OnCollision(collision);
@@ -12,6 +14,7 @@ public class Obstacle : MonoBehaviour
         if(collision.collider.tag.Equals("Player"))
         {
             Debug.Log("Obstacle Entered");
+            OnPlayerHit.Invoke();
         }
     }
 }
