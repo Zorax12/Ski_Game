@@ -23,6 +23,14 @@ public class GameManager : MonoBehaviour
   SkiFlag.RacePenalty += AddRacePenalty;
  }
 
+ private void OnDisable()
+ {
+  StartGate.StartRace -= OnRaceStart;
+  FinishGate.EndRace -= OnRaceEnd;
+  SkiFlag.RacePenalty -= AddRacePenalty;
+ }
+ 
+
  void Start()
  {
   if (PlayerPrefs.HasKey(bestTimekey))
@@ -48,6 +56,8 @@ public class GameManager : MonoBehaviour
  void OnRaceEnd()
  {
   racing = false;
+  float raceTimeF = (float)raceTime.TotalMilliseconds / 1000f;
+  GameData.Instance.AddTime(raceTimeF);
   if (raceTime < bestTime)
   {
    bestTime = raceTime;

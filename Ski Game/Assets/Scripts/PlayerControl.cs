@@ -14,13 +14,14 @@ public class PlayerControl : MonoBehaviour
     private float lastColTime;
 
     public static Transform player;
+    private Animator anim;
 
     void Awake()
     {
         move = InputSystem.actions.FindAction("Player/Move");
         rb = GetComponent<Rigidbody>();
         player = transform;
-        
+        anim = GetComponent<Animator>();
     }
 
     private void OnEnable()
@@ -42,6 +43,7 @@ public class PlayerControl : MonoBehaviour
             disabledControl = false;
         
        grounded = Physics.Linecast(transform.position, transform.position + Vector3.down, groundMask);
+       
        Color LineCol = grounded ? Color.green : Color.red;
        Debug.DrawLine(transform.position, transform.position + Vector3.down, LineCol);
        
@@ -56,7 +58,7 @@ public class PlayerControl : MonoBehaviour
             float speedMult = Mathf.Cos(turnAngle * Mathf.Deg2Rad);
             rb.AddForce(transform.forward * speed * speedMult * Time.fixedDeltaTime);
         }
-
-
+        anim.SetBool("grounded", grounded);
+        anim.SetFloat("playerSpeed", rb.linearVelocity.magnitude);
     }
 }
