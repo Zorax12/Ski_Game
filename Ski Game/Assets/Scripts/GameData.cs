@@ -3,52 +3,69 @@ using System.Collections.Generic;
 
 public class GameData : MonoBehaviour
 { 
-  private static GameData instance;
-  
-  public List<float> bestTimes = new List<float>();
+    private static GameData instance;
 
-  public static GameData Instance
-  {
-    get { return instance; }
-  }
+    public List<float> bestTimes = new List<float>();
 
-  public string leaderboardKey = "LVL1-"; 
-  private void Awake() 
-  {
-    if (instance != null && instance != this)
+    public static GameData Instance
     {
-      Destroy(gameObject);
+        get { return instance; }
     }
-    else
+
+    public string leaderboardKey = "LVL1-"; 
+
+    private void Awake() 
     {
-      instance = this;
-      DontDestroyOnLoad(gameObject);
-    }
-    LoadLeadeboard();
-  }
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
-  void LoadLeadeboard()
-  {
-    for (int i = 0; i < 5; i++)
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        LoadLeaderboard();
+    }
+
+    void LoadLeaderboard()
     {
-      float time = PlayerPrefs.GetFloat(leaderboardKey + i,999.99f);
-      bestTimes.Add(time);
-    }
-  }
+        bestTimes.Clear();
 
-  void SaveLeadeboard()
-  {
-    for (int i = 0; i < 5; i++)
-    { 
-      if(bestTimes.Count >= i)
-        PlayerPrefs.SetFloat(leaderboardKey + i,bestTimes[i]);
-    }
-  }
+        for (int i = 0; i < 5; i++)
+        {
+            float time = PlayerPrefs.GetFloat(leaderboardKey + i, 999.99f);
+            bestTimes.Add(time);
+        }
 
-  public void AddTime(float time)
-  {
-    bestTimes.Add(time);
-    bestTimes.Sort();
-    SaveLeadeboard();
-  }
+        bestTimes.Sort();
+    }
+
+    void SaveLeaderboard()
+    {
+        bestTimes.Sort();
+
+        for (int i = 0; i < 5; i++)
+        { 
+            if (i < bestTimes.Count)
+            {
+                PlayerPrefs.SetFloat(leaderboardKey + i, bestTimes[i]);
+            }
+        }
+
+        PlayerPrefs.Save();
+    }
+
+    public void AddTime(float time)
+    {
+        bestTimes.Add(time);
+        bestTimes.Sort();
+
+        if (bestTimes.Count > 5)
+        {
+            bestTimes.RemoveRange(5, bestTimes.Count - 5);
+        }
+
+        SaveLeaderboard();
+    }
 }
